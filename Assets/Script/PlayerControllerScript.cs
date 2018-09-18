@@ -43,9 +43,8 @@ public class PlayerControllerScript : MonoBehaviour
         //Debug.Log(rbVelocityY);
 
         //left right, change anim, 
-        float move = Input.GetAxis("Horizontal");
-        if (move > 0.01)
-            Debug.Log("Move: " + move);
+        //float move = Input.GetAxis("Horizontal");
+        float move = 0.7f;
         anim.SetFloat("Speed", Mathf.Abs(move));
 
         GetComponent<Rigidbody2D>().velocity = new Vector2(move * maxSpeed, rbVelocityY);
