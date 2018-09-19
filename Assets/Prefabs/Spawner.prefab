@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23316615197170246}
   - component: {fileID: 114370625049684794}
   m_Layer: 0
-  m_Name: GroundSpawn
+  m_Name: Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

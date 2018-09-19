@@ -10,8 +10,8 @@ public class EnemyMove : MonoBehaviour {
 
     private void Start()
     {
-        enemySpeed = 2;
-        xMoveDirection = -1;
+        //enemySpeed = 2;
+        //xMoveDirection = -1;
     }
 
     void Update()
@@ -19,13 +19,14 @@ public class EnemyMove : MonoBehaviour {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(xMoveDirection, 0));
         gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(xMoveDirection, 0) * enemySpeed;
         //Debug.Log(hit.distance);
-        if (hit.distance < 0.5f)
+        if ( hit && hit.distance < 0.4f)
         {
             if (hit.collider.tag == "Playa")
             {
                 Destroy(hit.collider.gameObject);
-                SceneManager.LoadScene("MainScene");
+                SceneManager.LoadScene("GameOverScene");
             }
         }
     }
+
 }

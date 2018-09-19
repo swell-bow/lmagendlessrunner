@@ -8,7 +8,7 @@ public class DestroyerScript : MonoBehaviour {
     {
         if (collision.tag == "Playa")
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MainScene");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GameOverScene");
             return;
         }
 

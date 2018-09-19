@@ -16,14 +16,17 @@ public class PlayerControllerScript : MonoBehaviour
     float groundRadius = 0.2f;
     public LayerMask whatIsGround;
 
-    public float jumpForce = 700f;
+    public float jumpForce = 900f;
 
     private bool doubleJump = false;
+
+    HUDScript hud;
 
     // Use this for initialization
     void Start()
     {
         anim = GetComponent<Animator>();
+        hud = GameObject.FindObjectOfType<Camera>().GetComponent<HUDScript>();
     }
 
     // Update is called once per frame
@@ -84,7 +87,7 @@ public class PlayerControllerScript : MonoBehaviour
         
         RaycastHit2D rayDown = Physics2D.Raycast(transform.position, Vector2.down);
 
-        Debug.Log(rayDown.collider.tag + " " + rayDown.distance);
+        //Debug.Log(rayDown.collider.tag + " " + rayDown.distance);
         if (rayDown && rayDown.distance < 1f)
         {
             //Debug.Log("wtf got it???");
@@ -102,8 +105,10 @@ public class PlayerControllerScript : MonoBehaviour
                 rayDown.collider.gameObject.GetComponent<BoxCollider2D>().enabled = false;
                 rayDown.collider.gameObject.GetComponent<EnemyMove>().enabled = false;
                 //Destroy(hit.collider.gameObject);
+                hud.IncreaseScore(100);
             }
 
         }
     }
+
 }
