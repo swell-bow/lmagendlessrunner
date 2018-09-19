@@ -22,8 +22,11 @@ public class PlayerControllerScript : MonoBehaviour
 
     HUDScript hud;
 
+    public GameObject projectileShot;
+    private float projectileShotSpeed = 2000f;
+
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         anim = GetComponent<Animator>();
         hud = GameObject.FindObjectOfType<Camera>().GetComponent<HUDScript>();
@@ -60,6 +63,13 @@ public class PlayerControllerScript : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            GameObject proj = Instantiate(projectileShot, transform.position, Quaternion.identity) as GameObject;
+            proj.GetComponent<Rigidbody2D>().velocity = new Vector2(1, 0) * 20;
+
+        }
+
         //"do not use get key down - do input manager create jump axis or jump button"
         if ((grounded || !doubleJump) && Input.GetKeyDown(KeyCode.Space))
         {
@@ -106,6 +116,9 @@ public class PlayerControllerScript : MonoBehaviour
                 rayDown.collider.gameObject.GetComponent<EnemyMove>().enabled = false;
                 //Destroy(hit.collider.gameObject);
                 hud.IncreaseScore(100);
+
+                //var sound = rayDown.collider.gameObject.GetComponent<AudioSource>();
+                //sound.Play();
             }
 
         }

@@ -16,9 +16,9 @@ public class EnemyMove : MonoBehaviour {
 
     void Update()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(xMoveDirection, 0));
         gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(xMoveDirection, 0) * enemySpeed;
-        //Debug.Log(hit.distance);
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(xMoveDirection, 0));
         if ( hit && hit.distance < 0.4f)
         {
             if (hit.collider.tag == "Playa")
