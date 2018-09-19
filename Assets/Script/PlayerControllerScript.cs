@@ -67,6 +67,8 @@ public class PlayerControllerScript : MonoBehaviour
             if (!doubleJump && !grounded)
                 doubleJump = true;
         }
+
+        PlayerRaycast();
     }
 
     void Flip()
@@ -75,5 +77,33 @@ public class PlayerControllerScript : MonoBehaviour
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
+    }
+
+    void PlayerRaycast()
+    {
+        
+        RaycastHit2D rayDown = Physics2D.Raycast(transform.position, Vector2.down);
+
+        Debug.Log(rayDown.collider.tag + " " + rayDown.distance);
+        if (rayDown && rayDown.distance < 1f)
+        {
+            //Debug.Log("wtf got it???");
+            //how do we do this properly????
+            if (rayDown.collider.tag == "Enemy")
+            {
+                //Debug.Log("touched Enemy");
+                //make bounce up!
+                GetComponent<Rigidbody2D>().AddForce(Vector2.up * 1000);
+                //kill enemy with animation
+                var enemyRB = rayDown.collider.gameObject.GetComponent<Rigidbody2D>();
+                enemyRB.AddForce(Vector2.right * 200);
+                enemyRB.gravityScale = 20;
+                enemyRB.freezeRotation = false;
+                rayDown.collider.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+                rayDown.collider.gameObject.GetComponent<EnemyMove>().enabled = false;
+                //Destroy(hit.collider.gameObject);
+            }
+
+        }
     }
 }

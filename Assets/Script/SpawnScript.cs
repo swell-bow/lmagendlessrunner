@@ -18,7 +18,9 @@ public class SpawnScript : MonoBehaviour
 
     void Spawn()
     {
-        Instantiate(obj[Random.Range(0, obj.Length)], transform.position, Quaternion.identity);
+        var thing = obj[Random.Range(0, obj.Length)];
+        Debug.Log(thing + " " + thing.tag);
+        Instantiate(thing, transform.position, Quaternion.identity);
         Invoke("Spawn", Random.Range(spawnMin, spawnMax));
     }
 }
