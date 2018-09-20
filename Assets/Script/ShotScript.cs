@@ -15,7 +15,7 @@ public class ShotScript : MonoBehaviour {
     void Update()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(1, 0));
-        Debug.Log("hit - " + (hit ? hit.distance.ToString() : "nohit"));
+        //Debug.Log("hit - " + (hit ? hit.distance.ToString() : "nohit"));
         if (hit && hit.distance < 0.55f)
         {
             hud.IncreaseScore(50);
