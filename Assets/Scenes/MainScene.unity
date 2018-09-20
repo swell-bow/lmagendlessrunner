@@ -278,8 +278,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundSize: 19
   parallaxSpeed: 0.4
-  scrolling: 0
-  parallax: 0
+  scrolling: 1
+  parallax: 1
 --- !u!1 &438488971
 GameObject:
   m_ObjectHideFlags: 0
@@ -1513,8 +1513,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundSize: 16.8
   parallaxSpeed: 0.8
-  scrolling: 0
-  parallax: 0
+  scrolling: 1
+  parallax: 1
 --- !u!4 &1777905440 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4638859439076334, guid: 069e3d05d1eff944ca86dea054346e0c,
