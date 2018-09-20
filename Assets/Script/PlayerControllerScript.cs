@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerControllerScript : MonoBehaviour
 {
+    public bool AllowTwoWay = false;
 
     public float maxSpeed = 10f;
     private bool facingRight = true;
@@ -49,8 +51,10 @@ public class PlayerControllerScript : MonoBehaviour
         //Debug.Log(rbVelocityY);
 
         //left right, change anim, 
-        //float move = Input.GetAxis("Horizontal");
         float move = 0.7f;
+        if (AllowTwoWay)
+            move = Input.GetAxis("Horizontal");
+
         anim.SetFloat("Speed", Mathf.Abs(move));
 
         GetComponent<Rigidbody2D>().velocity = new Vector2(move * maxSpeed, rbVelocityY);
@@ -94,7 +98,18 @@ public class PlayerControllerScript : MonoBehaviour
 
     void PlayerRaycast()
     {
-        
+        //FOR OUR OWN DEATH
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right);
+        if (hit && hit.distance < 0.55f)
+        {
+            if (hit.collider.tag == "Enemy")
+            {
+                Destroy(this.gameObject);
+                SceneManager.LoadScene("GameOverScene");
+            }
+        }
+
+        //for clobbering enemies from above
         RaycastHit2D rayDown = Physics2D.Raycast(transform.position, Vector2.down);
 
         //Debug.Log(rayDown.collider.tag + " " + rayDown.distance);
