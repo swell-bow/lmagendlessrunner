@@ -95,6 +95,14 @@ public class PlayerControllerScript : MonoBehaviour
         transform.localScale = theScale;
     }
 
+    IEnumerator LoadLevelAfterDelay(float delay, string scene)
+    {
+        Debug.Log("llad " + delay.ToString() + " " + scene);
+        yield return new WaitForSeconds(delay);
+        Debug.Log("wtf mate!");
+        SceneManager.LoadScene(scene);
+    }
+
     void PlayerRaycast()
     {
         //FOR OUR OWN DEATH
@@ -103,8 +111,19 @@ public class PlayerControllerScript : MonoBehaviour
         {
             if (hit.collider.tag == "Enemy")
             {
-                Destroy(this.gameObject);
-                SceneManager.LoadScene("GameOverScene");
+                Debug.Log("we are dead");
+                //this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
+                var thisRB = this.gameObject.GetComponent<Rigidbody2D>();
+                thisRB.AddForce(Vector2.up * 10);
+                thisRB.gravityScale = 0;
+                thisRB.freezeRotation = false;
+                this.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+                this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
+                //Destroy(this.gameObject, .75f); //, sound.clip.length);
+
+                StartCoroutine(LoadLevelAfterDelay(2f, "GameOverScene"));
+
+                //LoadLevelAfterDelay(2f, "GameOverScene");
             }
         }
 
