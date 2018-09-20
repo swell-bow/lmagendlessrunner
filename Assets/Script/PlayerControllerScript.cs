@@ -97,9 +97,9 @@ public class PlayerControllerScript : MonoBehaviour
 
     IEnumerator LoadLevelAfterDelay(float delay, string scene)
     {
-        Debug.Log("llad " + delay.ToString() + " " + scene);
+        //Debug.Log("llad " + delay.ToString() + " " + scene);
         yield return new WaitForSeconds(delay);
-        Debug.Log("wtf mate!");
+        //Debug.Log("wtf mate!");
         SceneManager.LoadScene(scene);
     }
 
@@ -111,7 +111,7 @@ public class PlayerControllerScript : MonoBehaviour
         {
             if (hit.collider.tag == "Enemy")
             {
-                Debug.Log("we are dead");
+                //Debug.Log("we are dead");
                 //this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
                 var thisRB = this.gameObject.GetComponent<Rigidbody2D>();
                 thisRB.AddForce(Vector2.up * 10);
