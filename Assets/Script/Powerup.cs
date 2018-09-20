@@ -21,7 +21,7 @@ public class Powerup : MonoBehaviour {
         if (collision.tag == "Playa")
         {
             hud.IncreaseScore(10);
-            Debug.Log("play audio on powerup");
+            //Debug.Log("play audio on powerup");
             audioSource.Play();
             rend.enabled = false;
             Destroy(this.gameObject,audioSource.clip.length);

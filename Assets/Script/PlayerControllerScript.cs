@@ -71,7 +71,6 @@ public class PlayerControllerScript : MonoBehaviour
         {
             GameObject proj = Instantiate(projectileShot, transform.position, Quaternion.identity) as GameObject;
             proj.GetComponent<Rigidbody2D>().velocity = new Vector2(1, 0) * 20;
-
         }
 
         //"do not use get key down - do input manager create jump axis or jump button"

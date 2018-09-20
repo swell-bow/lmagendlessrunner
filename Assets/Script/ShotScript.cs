@@ -22,12 +22,17 @@ public class ShotScript : MonoBehaviour {
             if (hit.collider.tag == "Enemy")
             {
                 //Debug.Log("HIT");
-                //var sound = hit.collider.gameObject.GetComponent<AudioSource>();
-                //sound.Play();
+                var sound = hit.collider.gameObject.GetComponent<AudioSource>();
+                sound.Play();
                 //rend.enabled = false;
-                hit.collider.isTrigger = true;
-                hit.collider.GetComponent<BoxCollider2D>().isTrigger = true;
-                hit.collider.gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
+                //hit.collider.isTrigger = true;
+                //hit.collider.GetComponent<BoxCollider2D>().isTrigger = true;
+                //hit.collider.gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
+
+                //hit.collider.enabled = false;
+                hit.collider.GetComponent<BoxCollider2D>().enabled = false;
+                //hit.collider.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+
                 hit.collider.gameObject.GetComponent<Animator>().SetTrigger("Death");
                 //Destroy(hit.collider.gameObject.GetComponent<BoxCollider2D>());
                 //Destroy(hit.collider.gameObject.GetComponent<Rigidbody2D>());
