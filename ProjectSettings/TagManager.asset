@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Playa
   - Enemy
+  - Hops
   layers:
   - Default
   - TransparentFX

@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class PlayerControllerScript : MonoBehaviour
 {
-    public bool AllowTwoWay = false;
-
     public float maxSpeed = 10f;
     private bool facingRight = true;
 
@@ -20,12 +18,17 @@ public class PlayerControllerScript : MonoBehaviour
 
     public float jumpForce = 900f;
 
-    private bool doubleJump = false;
-
     HUDScript hud;
 
     public GameObject projectileShot;
     private float projectileShotSpeed = 2000f;
+
+    //swipe stuff
+    private Vector2 fingerDown;
+    private Vector2 fingerUp;
+    public bool detectSwipeOnlyAfterRelease = false;
+    public float SWIPE_THRESHOLD = 20f;
+
 
     // Use this for initialization
     void Awake()
@@ -42,57 +45,72 @@ public class PlayerControllerScript : MonoBehaviour
         //on the ground?
         grounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
         anim.SetBool("Ground", grounded);
-
-        if (grounded)
-            doubleJump = false;
-
+        //Debug.Log("FixedUpdate grounded " + grounded);
         //vertical speed
         anim.SetFloat("vSpeed", rbVelocityY);
         //Debug.Log(rbVelocityY);
 
         //left right, change anim, 
-        float move = 0.7f;
-        if (AllowTwoWay)
-            move = Input.GetAxis("Horizontal");
+        float move = 1f;
 
         anim.SetFloat("Speed", Mathf.Abs(move));
 
         GetComponent<Rigidbody2D>().velocity = new Vector2(move * maxSpeed, rbVelocityY);
 
-        if (move > 0 && !facingRight)
-            Flip();
-        else if (move < 0 && facingRight)
-            Flip();
     }
 
     private void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            GameObject proj = Instantiate(projectileShot, transform.position, Quaternion.identity) as GameObject;
-            proj.GetComponent<Rigidbody2D>().velocity = new Vector2(1, 0) * 20;
-        }
+        CheckJump();
 
-        //"do not use get key down - do input manager create jump axis or jump button"
-        if ((grounded || !doubleJump) && Input.GetKeyDown(KeyCode.Space))
+        PlayerRaycast();
+
+        //touch stuff
+
+        foreach (Touch touch in Input.touches)
+        {
+            if (touch.phase == TouchPhase.Began)
+            {
+                fingerUp = touch.position;
+                fingerDown = touch.position;
+            }
+
+            //Detects Swipe while finger is still moving
+            if (touch.phase == TouchPhase.Moved)
+            {
+                if (!detectSwipeOnlyAfterRelease)
+                {
+                    fingerDown = touch.position;
+                    checkSwipe();
+                }
+            }
+
+            //Detects swipe after finger is released
+            if (touch.phase == TouchPhase.Ended)
+            {
+                fingerDown = touch.position;
+                checkSwipe();
+            }
+        }
+    }
+
+    private void CheckJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
+    }
+
+    private void Jump(bool fromSwipe = false)
+    {
+        //Debug.Log("in jump " + grounded);
+        if (grounded)
         {
             anim.SetBool("Ground", false);
             //Debug.Log("update ground false");
-            GetComponent<Rigidbody2D>().AddForce(new Vector2(0, jumpForce));
-
-            if (!doubleJump && !grounded)
-                doubleJump = true;
+            GetComponent<Rigidbody2D>().AddForce(new Vector2(0, jumpForce / (fromSwipe ? 2 : 1)));
         }
-
-        PlayerRaycast();
-    }
-
-    void Flip()
-    {
-        facingRight = !facingRight;
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
     }
 
     IEnumerator LoadLevelAfterDelay(float delay, string scene)
@@ -103,58 +121,130 @@ public class PlayerControllerScript : MonoBehaviour
         SceneManager.LoadScene(scene);
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Hops")
+        {
+            Destroy(collision.gameObject);
+            hud.IncreaseScore(100);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log(collision.collider.tag);
+        if (collision.collider.tag == "Enemy")
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GameOverScene");
+        }
+    }
+
     void PlayerRaycast()
     {
+        return;
+        //Debug.Log(transform.position);
         //FOR OUR OWN DEATH
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right);
-        if (hit && hit.distance < 0.55f)
+        var origin = new Vector2(transform.position.x, transform.position.y - .3f);
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right);
+        Debug.Log(System.DateTime.Now.ToLongTimeString() +  " PlayerRaycast " + hit.collider + " " + hit.distance + " " + (hit && hit.collider != null ? hit.collider.tag : ""));
+        if (hit && hit.distance < 2f) // && hit.distance < 0.55f)
         {
             if (hit.collider.tag == "Enemy")
             {
-                //Debug.Log("we are dead");
-                //this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
-                var thisRB = this.gameObject.GetComponent<Rigidbody2D>();
-                thisRB.AddForce(Vector2.up * 10);
-                thisRB.gravityScale = 0;
-                thisRB.freezeRotation = false;
-                this.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-                this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
-                //Destroy(this.gameObject, .75f); //, sound.clip.length);
+                Destroy(this.gameObject, .75f); //, sound.clip.length);
 
-                StartCoroutine(LoadLevelAfterDelay(2f, "GameOverScene"));
+                StartCoroutine(LoadLevelAfterDelay(1f, "GameOverScene"));
 
-                //LoadLevelAfterDelay(2f, "GameOverScene");
-            }
-        }
-
-        //for clobbering enemies from above
-        RaycastHit2D rayDown = Physics2D.Raycast(transform.position, Vector2.down);
-
-        //Debug.Log(rayDown.collider.tag + " " + rayDown.distance);
-        if (rayDown && rayDown.distance < 1f)
-        {
-            //Debug.Log("wtf got it???");
-            //how do we do this properly????
-            if (rayDown.collider.tag == "Enemy")
-            {
-                //Debug.Log("touched Enemy");
-                //make bounce up!
-                GetComponent<Rigidbody2D>().AddForce(Vector2.up * 1000);
-                //kill enemy with animation
-                var enemyRB = rayDown.collider.gameObject.GetComponent<Rigidbody2D>();
-                enemyRB.AddForce(Vector2.right * 200);
-                enemyRB.gravityScale = 20;
-                enemyRB.freezeRotation = false;
-                rayDown.collider.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-                rayDown.collider.gameObject.GetComponent<EnemyMove>().enabled = false;
                 //Destroy(hit.collider.gameObject);
-                hud.IncreaseScore(100);
+                //Debug.Log("we are dead");
+                ////this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
+                //var thisRB = this.gameObject.GetComponent<Rigidbody2D>();
+                //thisRB.AddForce(Vector2.up * 10);
+                //thisRB.gravityScale = 0;
+                //thisRB.freezeRotation = false;
+                //this.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+                //this.gameObject.GetComponent<Animator>().SetTrigger("Hurt");
+                ////Destroy(this.gameObject, .75f); //, sound.clip.length);
 
-                //var sound = rayDown.collider.gameObject.GetComponent<AudioSource>();
-                //sound.Play();
+                //StartCoroutine(LoadLevelAfterDelay(2f, "GameOverScene"));
+
+                ////LoadLevelAfterDelay(2f, "GameOverScene");
             }
-
         }
+
+    }
+
+    //swipe stuff
+
+
+    void checkSwipe()
+    {
+        //Check if Vertical swipe
+        if (verticalMove() > SWIPE_THRESHOLD && verticalMove() > horizontalValMove())
+        {
+            //Debug.Log("Vertical");
+            if (fingerDown.y - fingerUp.y > 0)//up swipe
+            {
+                OnSwipeUp();
+            }
+            else if (fingerDown.y - fingerUp.y < 0)//Down swipe
+            {
+                OnSwipeDown();
+            }
+            fingerUp = fingerDown;
+        }
+
+        //Check if Horizontal swipe
+        else if (horizontalValMove() > SWIPE_THRESHOLD && horizontalValMove() > verticalMove())
+        {
+            //Debug.Log("Horizontal");
+            if (fingerDown.x - fingerUp.x > 0)//Right swipe
+            {
+                OnSwipeRight();
+            }
+            else if (fingerDown.x - fingerUp.x < 0)//Left swipe
+            {
+                OnSwipeLeft();
+            }
+            fingerUp = fingerDown;
+        }
+
+        //No Movement at-all
+        else
+        {
+            //Debug.Log("No Swipe!");
+        }
+    }
+
+    float verticalMove()
+    {
+        return Mathf.Abs(fingerDown.y - fingerUp.y);
+    }
+
+    float horizontalValMove()
+    {
+        return Mathf.Abs(fingerDown.x - fingerUp.x);
+    }
+
+    //////////////////////////////////CALLBACK FUNCTIONS/////////////////////////////
+    void OnSwipeUp()
+    {
+        Jump(true);
+    }
+
+    void OnSwipeDown()
+    {
+        Debug.Log("Swipe Down");
+    }
+
+    void OnSwipeLeft()
+    {
+        Debug.Log("Swipe Left");
+    }
+
+    void OnSwipeRight()
+    {
+        Debug.Log("Swipe Right");
     }
 
 }
